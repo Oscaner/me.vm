@@ -1,0 +1,58 @@
+---
+# default.
+- name: Include config.local.yml if exists
+  include_vars:
+    file: "vars/config.local.yml"
+  no_log: true
+  ignore_errors: true
+
+- name: Create ~/.bash_profile file if not exists
+  copy:
+    dest: "~/.bash_profile"
+    content: |
+      # ~/.bash_profile: executed by bash(1) for login shells.
+
+      # The latest version as of 2021-06-28.
+      #
+    force: no
+  become: yes
+  become_user: "{{ item }}"
+  with_items: "{{ work_users }}"
+
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - build-essential
+      - openconnect
+      - fzf
+    state: present
+  become: yes
+  become_user: "{{ item }}"
+  with_items: "{{ work_users }}"
+
+# ohmyzsh.
+- name: Check if .oh-my-zsh directory exists
+  stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  register: ohmyzsh_result
+
+# - name: Debug ohmyzsh_result
+#   debug:
+#     var: ohmyzsh_result
+
+- include_tasks: tasks/ohmyzsh.yml
+  when: ohmyzsh_result.stat.exists == true
+
+# tmux.
+- name: Check if tmux exists
+  # become: true  # if required
+  command: "which tmux"
+  register: tmux_result
+  changed_when: false
+
+# - name: Debug tmux_result
+#   debug:
+#     var: tmux_result
+
+- include_tasks: tasks/tmux.yml
+  when: tmux_result.stdout != ""

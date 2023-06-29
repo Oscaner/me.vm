@@ -1,0 +1,34 @@
+# @see https://github.com/gusztavvargadr/vagrant/tree/master
+
+Vagrant.configure("2") do |config|
+  config.vm.define "oscaner.ubuntu", primary: true do |config_vm|
+    config_vm.vm.box = "bento/ubuntu-20.04-arm64"
+  end
+
+  config.vm.provider "virtualbox" do |v|
+    v.gui = false
+    v.memory = 2048
+  end
+
+  config.vm.provider "vmware_desktop" do |v|
+    v.gui = false
+    v.vmx['memsize'] = 2048
+  end
+
+  config.vm.synced_folder "/Users/oscaner", "/vagrant",
+    type: "nfs",
+    linux__nfs_options: ['rw'],
+    nfs_udp: false
+
+  config.vm.synced_folder "/Users/oscaner/Projects", "/home/vagrant/Projects",
+    type: "nfs",
+    linux__nfs_options: ['rw'],
+    nfs_udp: false
+
+  config.vm.provision "ansible", type: :ansible do |ansible|
+    ansible.compatibility_mode = '2.0'
+    ansible.playbook = "../../ansible/playbook.yml"
+    # ansible.extra_vars = {  }
+  end
+
+end

@@ -1,0 +1,9 @@
+---
+collections:
+  - name: community.general
+
+roles:
+  - name: diodonfrost.ohmyzsh
+  - name: diodonfrost.p10k
+  - name: nephelaiio.tmux
+  - name: andrewrothstein.kubectl

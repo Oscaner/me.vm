@@ -1,0 +1,16 @@
+---
+- name: include variable overrides
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "vars/{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+        - "vars/{{ ansible_distribution }}.yml"
+        - "vars/{{ ansible_os_family }}.yml"
+      skip: true
+
+- name: install xclip packages
+  package:
+    name: "{{ item }}"
+    state: "{{ xclip_packages_state }}"
+  with_items: "{{ xclip_packages | default(xclip_packages_default) }}"
+  become: yes

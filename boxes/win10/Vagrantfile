@@ -1,0 +1,27 @@
+# @see https://github.com/gusztavvargadr/vagrant/tree/master
+
+Vagrant.configure("2") do |config|
+  config.vm.define "oscaner.win10", primary: true do |config_vm|
+    config_vm.vm.box = "gusztavvargadr/windows-10"
+  end
+
+  config.vm.provision "shell", inline: <<-EOH
+    cmd /c ver
+    systeminfo
+  EOH
+
+  config.vm.provider "virtualbox" do |v|
+    v.gui = true
+  end
+
+  config.vm.provider "vmware_desktop" do |v|
+    v.gui = true
+    v.allowlist_verified = true
+  end
+
+  # SSH options.
+  config.ssh.insert_key = false
+  config.ssh.forward_agent = true
+
+  config.vm.synced_folder "/Users/oscaner", "C:\\Users\\oscaner", type: "nfs"
+end

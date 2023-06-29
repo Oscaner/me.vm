@@ -1,0 +1,25 @@
+---
+- name: Setup | Package requirements
+  package:
+    name: "{{ package_requirements[ansible_facts['os_family']] | default(default_package_requirements) }}"
+    state: present
+
+- name: Setup | Download ohmyzsh
+  git:
+    repo: 'https://github.com/ohmyzsh/ohmyzsh.git'
+    dest: ~/.oh-my-zsh
+    depth: 1
+    update: no
+  become: yes
+  become_user: "{{ item }}"
+  notify: Configure .zshrc
+  with_items: "{{ ohmyzsh_users }}"
+
+- name: Setup | Flush handler
+  meta: flush_handlers
+
+# @see https://stackoverflow.com/a/69102800
+- name: Setup | Set zsh as default user shell
+  ansible.builtin.command: usermod --shell {{ zsh_bin_path }} {{ item }}
+  become: yes
+  with_items: "{{ ohmyzsh_users }}"
