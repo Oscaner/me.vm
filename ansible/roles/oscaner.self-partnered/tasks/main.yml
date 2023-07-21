@@ -23,7 +23,6 @@
   ansible.builtin.package:
     name:
       - build-essential
-      - openconnect
       - fzf
     state: present
   become: yes
@@ -36,23 +35,14 @@
     path: "{{ ansible_env.HOME }}/.oh-my-zsh"
   register: ohmyzsh_result
 
-# - name: Debug ohmyzsh_result
-#   debug:
-#     var: ohmyzsh_result
-
 - include_tasks: tasks/ohmyzsh.yml
   when: ohmyzsh_result.stat.exists == true
 
 # tmux.
 - name: Check if tmux exists
-  # become: true  # if required
   command: "which tmux"
   register: tmux_result
   changed_when: false
 
-# - name: Debug tmux_result
-#   debug:
-#     var: tmux_result
-
-- include_tasks: tasks/tmux.yml
+- include_tasks: tasks/openconnect.yml
   when: tmux_result.stdout != ""
