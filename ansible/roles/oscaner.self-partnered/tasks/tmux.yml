@@ -2,6 +2,7 @@
 - name: Add vpn alias
   blockinfile:
     path: "~/.bash_profile"
+    # --servercert {{ item['servercert'] }} \
     block: |
       alias vpn-{{ item['name'] }}="! tmux has-session -t vpn-{{ item['name'] }} 2>/dev/null && \
         tmux new-session -s vpn-{{ item['name'] }} -d \" \
@@ -10,7 +11,6 @@
             {{ item['server'] }} \
             --user={{ item['username'] }} \
             --passwd-on-stdin \
-            --servercert {{ item['servercert'] }} \
             --csd-wrapper=/usr/libexec/openconnect/hipreport.sh \
         \""
       alias vpn-{{ item['name'] }}-stop="tmux kill-session -t vpn-{{ item['name'] }}"
