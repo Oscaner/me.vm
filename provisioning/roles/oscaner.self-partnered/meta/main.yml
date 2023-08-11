@@ -22,11 +22,6 @@ galaxy_info:
     - tmux
 
 dependencies:
-  - role: drupalvm.vagrant-nfs-fix
-    vars:
-      vagrant_nfs_fix_keepalive_file: "/vagrant/tmp/.vagrant-nfs-fix-keepalive.tmp"
-    when: ansible_os_family == 'Debian'
-
   - role: diodonfrost.ohmyzsh
     vars:
       ohmyzsh_users:

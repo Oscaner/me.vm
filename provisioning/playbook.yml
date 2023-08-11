@@ -5,5 +5,25 @@
   vars_files:
     - vars/config.yml
 
+  pre_tasks:
+    # - debug: var=ansible_default_ipv4
+    # - debug: var=ansible_eth1.ipv4
+
+    # Fix ansible_default_ipv4
+    - set_fact:
+        ansible_default_ipv4: "{{ ansible_default_ipv4 | combine(ansible_eth1.ipv4) }}"
+        ansible_ssh_host: "{{ ansible_eth1.ipv4.address | default(ansible_default_ipv4.address) }}"
+
+    # - debug: var=ansible_default_ipv4
+    # - debug: var=ansible_ssh_host
+
+    - include_role:
+        name: drupalvm.vagrant-nfs-fix
+      vars:
+        vagrant_nfs_fix_keepalive_file: "/vagrant/tmp/.vagrant-nfs-fix-keepalive.tmp"
+      when: ansible_os_family == 'Debian'
+
+    - include_tasks: "tasks/init-{{ ansible_os_family }}.yml"
+
   roles:
     - role: oscaner.self-partnered

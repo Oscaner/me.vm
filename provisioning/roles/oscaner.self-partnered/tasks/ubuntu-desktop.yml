@@ -1,0 +1,68 @@
+---
+- name: Install ubuntu-desktop
+  apt:
+    name:
+      - ubuntu-desktop
+      - open-vm-tools-desktop
+      - im-switch
+      - fcitx
+      - fcitx-googlepinyin
+      - fcitx-frontend-gtk2
+      - fcitx-frontend-gtk3
+      - fcitx-frontend-qt5
+    state: present
+  become: yes
+
+- name: remove fcitx-ui-classic
+  apt:
+    name:
+      - fcitx-ui-classic
+    state: absent
+  become: yes
+  ignore_errors: yes
+
+- name: install fcitx-ui-qimpanel
+  apt:
+    name:
+      - fcitx-ui-qimpanel
+    state: present
+  become: yes
+
+- name: install languages
+  shell: "apt -y install $(check-language-support -l {{ item }})"
+  become: yes
+  with_items: "{{ ubuntu_languages }}"
+
+- name: im-config -n fcitx
+  shell: "im-config -n fcitx"
+  become: yes
+  become_user: "{{ item }}"
+  with_items: "{{ work_users }}"
+
+- name: fcitx startup
+  copy:
+    src: "/usr/share/applications/fcitx.desktop"
+    dest: "~/.config/autostart/"
+    mode: 0755
+    remote_src: yes
+  become: yes
+  become_user: "{{ item }}"
+  with_items: "{{ work_users }}"
+
+- name: fcitx environment variables
+  blockinfile:
+    path: "/etc/profile"
+    block: |
+      export XMODIFIERS=@im=fcitx
+      export GTK_IM_MODULE=fcitx
+      export QT_IM_MODULE=fcitx
+    insertbefore: EOF
+    marker_begin: "BEGIN fcitx"
+    marker_end: "END fcitx"
+    state: present
+  register: fcitx_environment_variables
+  become: yes
+
+- name: reboot system
+  reboot:
+  when: fcitx_environment_variables.changed

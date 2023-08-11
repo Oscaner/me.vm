@@ -1,21 +1,23 @@
 ---
-- name: Install zsh-autosuggestions
+- name: install zsh-autosuggestions
   ansible.builtin.git:
     repo: 'https://github.com/zsh-users/zsh-autosuggestions'
     dest: "{{ ansible_env.ZSH_CUSTOM | default('~/.oh-my-zsh/custom') }}/plugins/zsh-autosuggestions"
+    update: false
   become: yes
   become_user: "{{ item }}"
   with_items: "{{ work_users }}"
 
-- name: Install zsh-syntax-highlighting
+- name: install zsh-syntax-highlighting
   ansible.builtin.git:
     repo: 'https://github.com/zsh-users/zsh-syntax-highlighting.git'
     dest: "{{ ansible_env.ZSH_CUSTOM | default('~/.oh-my-zsh/custom') }}/plugins/zsh-syntax-highlighting"
+    update: false
   become: yes
   become_user: "{{ item }}"
   with_items: "{{ work_users }}"
 
-- name: Source ~/.bash_profile in ohmyzsh
+- name: source ~/.bash_profile in ohmyzsh
   blockinfile:
     path: "~/.zshrc"
     block: |

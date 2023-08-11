@@ -1,34 +1,66 @@
 # @see https://github.com/gusztavvargadr/vagrant/tree/master
 
+require_relative '../../lib/vagrant'
+
+vconfig = load_config([
+  'config.yml',
+  'config.local.yml',
+])
+
+ensure_plugins(vconfig['vagrant_plugins'])
+
 Vagrant.configure("2") do |config|
   config.vm.define "oscaner.ubuntu", primary: true do |config_vm|
     config_vm.vm.box = "bento/ubuntu-20.04-arm64"
   end
 
+  config.vm.network :private_network,
+                    ip: vconfig['vagrant_ip'],
+                    auto_network: vconfig['vagrant_ip'] == '0.0.0.0' && Vagrant.has_plugin?('vagrant-auto_network')
+
+  # SSH options.
+  config.ssh.insert_key = false
+  config.ssh.forward_agent = true
+
+  # VirtualBox and VMware options.
   config.vm.provider "virtualbox" do |v|
-    v.gui = false
-    v.memory = 2048
+    v.gui = gui_enabled?
+    v.memory = vconfig['vagrant_memory']
+    v.cpus = vconfig['vagrant_cpus']
   end
 
-  config.vm.provider "vmware_desktop" do |v|
-    v.gui = false
-    v.vmx['memsize'] = 2048
+  config.vm.provider "vmware_fusion" do |v|
+    v.gui = gui_enabled?
+    v.vmx['memsize'] = vconfig['vagrant_memory']
+    v.vmx['numvcpus'] = vconfig['vagrant_cpus']
+    v.ssh_info_public = true
+    v.allowlist_verified = true
   end
 
-  config.vm.synced_folder "/Users/oscaner", "/vagrant",
-    type: "nfs",
-    linux__nfs_options: ['rw'],
-    nfs_udp: false
+  # Synced folders.
+  vconfig['vagrant_synced_folders'].each do |synced_folder|
+    options = {
+      type: synced_folder.fetch('type', vconfig['vagrant_synced_folder_default_type']),
+      rsync__exclude: synced_folder['excluded_paths'],
+      rsync__args: ['--verbose', '--archive', '--delete', '-z', '--copy-links', '--chmod=ugo=rwX'],
+      id: synced_folder['id'],
+      create: synced_folder.fetch('create', false),
+      mount_options: synced_folder.fetch('mount_options', []),
+      nfs_udp: synced_folder.fetch('nfs_udp', false)
+    }
+    synced_folder.fetch('options_override', {}).each do |key, value|
+      options[key.to_sym] = value
+    end
+    config.vm.synced_folder synced_folder.fetch('local_path'), synced_folder.fetch('destination'), options
+  end
 
-  config.vm.synced_folder "/Users/oscaner/Projects", "/home/vagrant/Projects",
-    type: "nfs",
-    linux__nfs_options: ['rw'],
-    nfs_udp: false
-
+  # Provisioning.
   config.vm.provision "ansible", type: :ansible do |ansible|
     ansible.compatibility_mode = '2.0'
     ansible.playbook = "../../provisioning/playbook.yml"
-    # ansible.extra_vars = {  }
+    ansible.extra_vars = {
+      gui_enabled: gui_enabled?,
+    }
   end
 
 end

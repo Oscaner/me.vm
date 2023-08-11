@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: ubuntu-kernel
+  namespace: oscaner
+  author: oscaner
+  description: An Ansible role to install ubuntu kernel
+  license: MIT
+  min_ansible_version: "2.2"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - bionic
+        - xenial
+    - name: Debian
+      versions:
+        - buster
+  galaxy_tags:
+    - ubuntu
+    - mainline
+    - kernel

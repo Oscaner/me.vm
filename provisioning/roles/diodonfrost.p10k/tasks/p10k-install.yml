@@ -4,7 +4,7 @@
   package:
     name: "{{ p10k_dependencies }}"
     state: present
-  become: true
+  become: yes
   when: p10k_dependencies
 
 - name: Get ZSH version

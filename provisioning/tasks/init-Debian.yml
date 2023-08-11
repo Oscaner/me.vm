@@ -1,0 +1,79 @@
+---
+- name: get DEB architecture
+  shell: dpkg --print-architecture
+  register: deb_architecture
+
+- name: include arch config
+  include_vars:
+    file: "vars/arch/{{ deb_architecture.stdout }}.yml"
+  no_log: true
+  ignore_errors: true
+
+- name: apt configure
+  block:
+    - name: backup apt sources.list
+      copy:
+        src: "/etc/apt/sources.list"
+        dest: "/etc/apt/sources.list.back"
+        owner: root
+        group: root
+        mode: 0644
+        force: no
+        remote_src: yes
+
+    - name: change apt sources.list to aliyun
+      copy:
+        content: |
+          deb {{ aliyun_source }} focal main restricted universe multiverse
+          deb-src {{ aliyun_source }} focal main restricted universe multiverse
+
+          deb {{ aliyun_source }} focal-security main restricted universe multiverse
+          deb-src {{ aliyun_source }} focal-security main restricted universe multiverse
+
+          deb {{ aliyun_source }} focal-updates main restricted universe multiverse
+          deb-src {{ aliyun_source }} focal-updates main restricted universe multiverse
+
+          # deb {{ aliyun_source }} focal-proposed main restricted universe multiverse
+          # deb-src {{ aliyun_source }} focal-proposed main restricted universe multiverse
+
+          deb {{ aliyun_source }} focal-backports main restricted universe multiverse
+          deb-src {{ aliyun_source }} focal-backports main restricted universe multiverse
+        dest: "/etc/apt/sources.list"
+        owner: root
+        group: root
+        mode: 0644
+        force: yes
+      when: aliyun_source is defined
+
+    - name: install open-vm-tools
+      apt:
+        name:
+          - open-vm-tools
+        state: present
+      become: yes
+      become_user: "{{ item }}"
+      with_items: "{{ work_users }}"
+  become: yes
+  become_user: root
+
+- name: upgrade kernel to {{ ubuntu_kernel }}
+  include_role:
+    name: "oscaner.ubuntu-kernel"
+
+- name: apt update
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 # One day
+
+- name: install packages
+  apt:
+    name:
+      - build-essential
+      - mesa-common-dev
+      - openssl
+      - fzf
+    state: present
+  become: yes
+  become_user: "{{ item }}"
+  with_items: "{{ work_users }}"

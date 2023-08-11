@@ -1,0 +1,29 @@
+---
+- name: Install qt5
+  apt:
+    name:
+      - qt5-default
+      - qtcreator
+      - qtbase5-examples
+      - qtbase5-doc-html
+      - qt5-doc
+      - qt5-doc-html
+      - qtdeclarative5-dev
+      - gcc
+      - g++
+      - lsb-core
+      - libglu1-mesa-dev
+    state: present
+  become: yes
+
+- name: apt autoremove libclang-common-10-dev
+  apt:
+    name: libclang-common-10-dev
+    state: absent
+  become: yes
+
+- name: apt install libclang-common-8-dev
+  apt:
+    name: libclang-common-8-dev
+    state: present
+  become: yes

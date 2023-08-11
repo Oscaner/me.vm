@@ -1,0 +1,8 @@
+---
+- name: run `vagrant reload --provision` to reboot system
+  debug: msg="run `vagrant reload --provision` to reboot system"
+  listen: End play & reboot system
+
+- name: End play
+  meta: end_play
+  listen: End play & reboot system

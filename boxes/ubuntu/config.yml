@@ -1,0 +1,28 @@
+vagrant_box: bento/ubuntu-20.04-arm64
+vagrant_synced_folder_default_type: nfs
+vagrant_ip: 0.0.0.0
+# vagrant_ip: 192.168.57.104
+
+# Memory and CPU to use for this VM.
+vagrant_memory: 2048
+vagrant_cpus: 2
+
+# Ensure vagrant plugins are installed.
+vagrant_plugins:
+  - name: vagrant-vbguest
+  - name: vagrant-auto_network
+
+vagrant_synced_folders:
+  # The first synced folder will be used for the default Drupal installation, if
+  # any of the build_* settings are 'true'. By default the folder is set to
+  # the drupal-vm folder.
+  - local_path: /Users/oscaner
+    destination: /vagrant
+    type: nfs
+    create: true
+    nfs_udp: false
+  - local_path: /Users/oscaner/Projects
+    destination: /home/vagrant/Projects
+    type: nfs
+    create: true
+    nfs_udp: false

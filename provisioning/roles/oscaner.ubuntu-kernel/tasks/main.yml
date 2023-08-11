@@ -1,0 +1,44 @@
+---
+- name: add ppa:cappelikan/ppa repository
+  apt_repository:
+    repo: "ppa:cappelikan/ppa"
+    state: present
+  become: yes
+
+- name: install mainline packages
+  apt:
+    name:
+      - mainline
+    state: present
+  become: yes
+
+- name: check if ubuntu kernel is {{ ubuntu_kernel }}
+  shell: "uname -sr"
+  register: ubuntu_kernel_result
+  changed_when: false
+  ignore_errors: yes
+  become: yes
+
+- name: debug ubuntu_kernel_result
+  debug: msg="{{ ubuntu_kernel_result }}"
+  become: yes
+
+- name: upgrade ubuntu kernel
+  shell: "mainline install {{ ubuntu_kernel }}"
+  when: ubuntu_kernel not in ubuntu_kernel_result.stdout
+  become: yes
+
+- name: reboot system
+  reboot:
+  register: reboot_result
+  when: ubuntu_kernel not in ubuntu_kernel_result.stdout
+  become: yes
+
+# - name: debug reboot_result
+#   debug: msg="{{ reboot_result }}"
+
+- name: apt fix broken
+  shell: "apt --fix-broken install -y"
+  # when: reboot_kernel_result.stat.exists
+  when: ubuntu_kernel not in ubuntu_kernel_result.stdout
+  become: yes

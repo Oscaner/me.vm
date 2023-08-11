@@ -1,4 +1,12 @@
 ---
+timezone: 'Asia/Shanghai'
+
 tmux_install: true
 kubectl_install: true
 vpn_meta: []
+
+ubuntu_kernel: 6.4.9
+ubuntu_languages:
+  - zh-hans
+
+tmux_plugins: []

@@ -12,19 +12,13 @@
     content: |
       # ~/.bash_profile: executed by bash(1) for login shells.
 
-      # The latest version as of 2021-06-28.
+      # The latest version as of 2023-08-12.
       #
+      export TZ="{{ timezone }}"
+      export LC_ALL="en_US.UTF-8"
+      export LANG="en_US.UTF-8"
+      export LANGUAGE="en_US.UTF-8"
     force: no
-  become: yes
-  become_user: "{{ item }}"
-  with_items: "{{ work_users }}"
-
-- name: Install packages
-  ansible.builtin.package:
-    name:
-      - build-essential
-      - fzf
-    state: present
   become: yes
   become_user: "{{ item }}"
   with_items: "{{ work_users }}"
@@ -44,5 +38,11 @@
   register: tmux_result
   changed_when: false
 
-- include_tasks: tasks/openconnect.yml
-  when: tmux_result.stdout != ""
+# - include_tasks: tasks/openconnect.yml
+#   when: tmux_result.stdout != ""
+
+# qt.
+# - include_tasks: tasks/qt.yml
+
+# desktop
+- include_tasks: tasks/ubuntu-desktop.yml

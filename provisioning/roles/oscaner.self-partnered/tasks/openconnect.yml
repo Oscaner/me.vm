@@ -1,12 +1,10 @@
 ---
 - name: Install openconnect
-  ansible.builtin.package:
+  apt:
     name:
       - openconnect
     state: present
   become: yes
-  become_user: "{{ item }}"
-  with_items: "{{ work_users }}"
 
 - name: Add vpn alias
   blockinfile:
