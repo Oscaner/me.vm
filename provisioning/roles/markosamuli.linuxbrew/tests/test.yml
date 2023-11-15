@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  remote_user: root
+  name: Install Homebrew on Linux
+  roles:
+    - markosamuli.linuxbrew

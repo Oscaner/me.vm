@@ -1,9 +1,9 @@
 ---
 - name: Themes | Set ohmyzsh theme to used
-  lineinfile:
-    path: ~/.zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ item['home'] }}/.zshrc"
     regexp: '^ZSH_THEME='
     line: 'ZSH_THEME="{{ ohmyzsh_theme }}"'
-  become: yes
-  become_user: "{{ item }}"
-  with_items: "{{ ohmyzsh_users }}"
+    owner: "{{ item['name'] }}"
+    group: "{{ item['group'] }}"
+  loop: "{{ ohmyzsh_users_information }}"

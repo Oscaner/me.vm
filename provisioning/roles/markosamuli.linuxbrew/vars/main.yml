@@ -1,0 +1,15 @@
+---
+# vars file for markosamuli.linuxbrew
+
+# Shared directory to install Linuxbrew in
+linuxbrew_prefix_shared: "/home/linuxbrew/.linuxbrew"
+
+# Brew Git repository
+linuxbrew_brew_repo: https://github.com/Homebrew/brew
+linuxbrew_brew_version: master
+linuxbrew_core_tap_repo: https://github.com/Homebrew/linuxbrew-core
+linuxbrew_core_tap_version: master
+
+# Linuxbrew installer script
+linuxbrew_install_tmp: "/tmp/linuxbrew"
+linuxbrew_install_url: "https://raw.githubusercontent.com/Homebrew/install/master/install.sh"

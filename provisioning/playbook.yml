@@ -5,17 +5,23 @@
   vars_files:
     - vars/config.yml
 
+  vars:
+    work_users:
+      - "{{ ansible_user_id }}"
+      - vagrant
+
   pre_tasks:
-    # - debug: var=ansible_default_ipv4
-    # - debug: var=ansible_eth1.ipv4
+    # default.
+    - name: Include config.local.yml if exists
+      include_vars:
+        file: vars/config.local.yml
+      no_log: true
+      ignore_errors: true
 
     # Fix ansible_default_ipv4
     - set_fact:
         ansible_default_ipv4: "{{ ansible_default_ipv4 | combine(ansible_eth1.ipv4) }}"
         ansible_ssh_host: "{{ ansible_eth1.ipv4.address | default(ansible_default_ipv4.address) }}"
-
-    # - debug: var=ansible_default_ipv4
-    # - debug: var=ansible_ssh_host
 
     - include_role:
         name: drupalvm.vagrant-nfs-fix
@@ -25,5 +31,51 @@
 
     - include_tasks: "tasks/init-{{ ansible_os_family }}.yml"
 
-  roles:
-    - role: oscaner.self-partnered
+    - include_role:
+        name: diodonfrost.ohmyzsh
+      vars:
+        ohmyzsh_users: "{{ work_users }}"
+
+    - include_role:
+        name: markosamuli.linuxbrew
+      vars:
+        linuxbrew_use_installer: true
+
+    - name: Create ~/.bashrc file if not exists
+      copy:
+        dest: "~/.bashrc"
+        content: |
+          export HOMEBREW_API_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles/api"
+          export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles"
+          export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git"
+          export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git"
+          export HOMEBREW_PIP_INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
+        force: no
+      become: yes
+      become_user: "{{ item }}"
+      with_items: "{{ work_users }}"
+
+    - name: Create ~/.bash_profile file if not exists
+      copy:
+        dest: "~/.bash_profile"
+        content: |
+          if [ -f ~/.bashrc ]; then
+            source ~/.bashrc
+          fi
+          export TZ="Asia/Shanghai"
+          export LC_ALL="en_US.UTF-8"
+          export LANG="en_US.UTF-8"
+          export LANGUAGE="en_US.UTF-8"
+        force: no
+      become: yes
+      become_user: "{{ item }}"
+      with_items: "{{ work_users }}"
+
+    # onmyzsh.
+    - include_tasks: tasks/ohmyzsh.yml
+      become: yes
+      become_user: "{{ item }}"
+      with_items: "{{ work_users }}"
+
+    # desktop
+    - include_tasks: tasks/ubuntu-desktop.yml

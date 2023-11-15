@@ -1,0 +1,33 @@
+---
+- name: zinit plugins
+  block:
+    - name: install zinit
+      homebrew:
+        name: zinit
+    - name: setup zinit
+      blockinfile:
+        path: "~/.zshrc"
+        block: |
+          zinit light conda-incubator/conda-zsh-completion
+
+          export FZF_PATH="$HOME/.config/fzf"
+          zinit light unixorn/fzf-zsh-plugin
+          export FZF_PREVIEW_ADVANCED=true
+
+          export NVM_COMPLETION=true
+          zinit light lukechilds/zsh-nvm
+
+          zinit ice depth"1"
+          zinit light romkatv/powerlevel10k
+
+          zinit zsh-users/zsh-completions
+
+          export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=59'
+          zinit zsh-users/zsh-autosuggestions
+
+          zinit zsh-users/zsh-syntax-highlighting
+
+          [[ ! -f $HOME/.bash_profile ]] || source $HOME/.bash_profile
+        insertafter: EOF
+        marker_begin: "BEGIN BASH PROFILE"
+        marker_end: "END BASH PROFILE"

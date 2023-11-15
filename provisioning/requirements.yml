@@ -4,6 +4,4 @@ collections:
 
 roles:
   - name: diodonfrost.ohmyzsh
-  - name: diodonfrost.p10k
-  - name: nephelaiio.tmux
-  - name: andrewrothstein.kubectl
+  - name: markosamuli.linuxbrew
