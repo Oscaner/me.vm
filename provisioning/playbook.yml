@@ -73,8 +73,9 @@
 
     # onmyzsh.
     - include_tasks: tasks/ohmyzsh.yml
-      become: yes
-      become_user: "{{ item }}"
+      vars:
+        ansible_become: true
+        ansible_become_user: "{{ item }}"
       with_items: "{{ work_users }}"
 
     # desktop
