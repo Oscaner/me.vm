@@ -45,10 +45,11 @@ multipass transfer ~/.ssh/id_rsa $name:/home/ubuntu/.ssh/id_rsa
 multipass transfer ~/.ssh/id_rsa.pub $name:/home/ubuntu/.ssh/id_rsa.pub
 multipass exec $name -- sudo chown ubuntu:ubuntu /home/ubuntu/.ssh/id_rsa /home/ubuntu/.ssh/id_rsa.pub
 
-# Install Docker
-if [ -z "$(multipass exec $name -- which docker)" ]; then
-  echo "> Installing Docker..."
-  multipass exec $name -- sudo snap install docker
-else
-  echo "> Docker is already installed."
-fi
+# Install cli
+multipass exec $name -- sudo snap install docker
+multipass exec $name -- sudo snap install kubectl --classic
+multipass exec $name -- sudo snap install kubectx --classic
+
+# Install Azure CLI
+multipass exec $name -- bash -c "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash"
+multipass exec $name -- az cloud set --name AzureChinaCloud
